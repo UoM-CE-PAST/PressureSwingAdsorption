@@ -100,61 +100,61 @@ def masterFile():
     #  Send durations and number of loops to Arduino
     arduinoController(serialArduino, cycleDuration = durations_list, numCycles = num_loops)
 
-    with open('dataPolling.csv', 'w', newline='') as csvfile:
-        fieldnames = ['Time', 'MFC' , 'MFM', 'Pressure', 'Temperature1', 'Temperature2', 'Temperature3', 'Temperature4', 'Temperature5', 'Temperature6', 'Arduino1', 'Arduino2', 'Arduino3', 'Arduino4']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
+    # with open('dataPolling.csv', 'w', newline='') as csvfile:
+    #     fieldnames = ['Time', 'MFC' , 'MFM', 'Pressure', 'Temperature1', 'Temperature2', 'Temperature3', 'Temperature4', 'Temperature5', 'Temperature6', 'Arduino1', 'Arduino2', 'Arduino3', 'Arduino4']
+    #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    #     writer.writeheader()
+
+    # Read the flowrates from the Alicat devices
+    MFC = alicatInstruments(serialMF,f"{MFC_id}\r") # Read the flowrate from the Alicat MFC
+    MFM = alicatInstruments(serialMF,f"{MFM_id}\r") # Read the flowrate from the Alicat MFM
+
+    # Read the string coming out of instruments for the duration of the Arduino program
+    current_time = time.time()
+    start_time = time.time()
+    pollingData = []
+    while (current_time-start_time) <= total_cycle_time+3 :
 
         # Read the flowrates from the Alicat devices
-        MFC = alicatInstruments(serialMF,f"{MFC_id}\r") # Read the flowrate from the Alicat MFC
-        MFM = alicatInstruments(serialMF,f"{MFM_id}\r") # Read the flowrate from the Alicat MFM
+        MFC_flowrate = MFC
+        MFM_flowrate = MFM
+        presTransmitter = pressureTransmitter('COM3', 9600, 253, 0.2, True)
+        tempProbe = temperatureProbe()
+        arduino=arduinoController(serialArduino, readData = True)
 
-        # Read the string coming out of instruments for the duration of the Arduino program
+        # Read the pressure from the pressure transmitter
+        pressure = presTransmitter
+
+        # Read the temperature from the temperature probe
+        temperature = tempProbe
+
+        # SPlit the temperature string into a list of temperatures
+        temperature1 = temperature[0]
+        temperature2 = temperature[1]
+        temperature3 = temperature[2]
+        temperature4 = temperature[3]
+        temperature5 = temperature[4]
+        temperature6 = temperature[5]
+
+        # Arduino reading
+        arduino1 = arduino[0]
+        arduino2 = arduino[1]
+        arduino3 = arduino[2]
+        arduino4 = arduino[3]
+
+        # Record the data every second into a csv file
+        # writer.writerow({'Time': time.strftime("%Y-%B-%d %H:%M:%S"), 'MFC': MFC_flowrate, 'MFM': MFM_flowrate, 'Pressure': pressure, 'Temperature1': temperature[0], 'Temperature2': temperature[1], 'Temperature3': temperature[2], 'Temperature4': temperature[3], 'Temperature5': temperature[4], 'Temperature6': temperature[5], 'Arduino1': arduino[0], 'Arduino2': arduino[1], 'Arduino3': arduino[2], 'Arduino4': arduino[3]})
+        
+        # # Print the data to the console
+        # print(f"Time: {time.strftime('%Y-%B-%d %H:%M:%S')}, MFC: {MFC_flowrate}, MFM: {MFM_flowrate}, Pressure: {pressure}, Temperature1: {temperature1}, Temperature2: {temperature2}, Temperature3: {temperature3}, Temperature4: {temperature4}, Temperature5: {temperature5}, Temperature6: {temperature6}, Arduino1: {arduino1}, Arduino2: {arduino2}, Arduino3: {arduino3}, Arduino4: {arduino4}")
+
         current_time = time.time()
-        start_time = time.time()
-        pollingData = []
-        while (current_time-start_time) <= total_cycle_time+3 :
 
-            # Read the flowrates from the Alicat devices
-            MFC_flowrate = MFC
-            MFM_flowrate = MFM
-            presTransmitter = pressureTransmitter('COM3', 9600, 253, 0.2, True)
-            tempProbe = temperatureProbe()
-            arduino=arduinoController(serialArduino, readData = True)
+        # Append the data to a list
+        pollingData.append([time.strftime("%Y-%B-%d %H:%M:%S"), MFC_flowrate, MFM_flowrate, pressure, temperature1, temperature2, temperature3, temperature4, temperature5, temperature6, arduino1, arduino2, arduino3, arduino4])
 
-            # Read the pressure from the pressure transmitter
-            pressure = presTransmitter
-
-            # Read the temperature from the temperature probe
-            temperature = tempProbe
-
-            # SPlit the temperature string into a list of temperatures
-            temperature1 = temperature[0]
-            temperature2 = temperature[1]
-            temperature3 = temperature[2]
-            temperature4 = temperature[3]
-            temperature5 = temperature[4]
-            temperature6 = temperature[5]
-
-            # Arduino reading
-            arduino1 = arduino[0]
-            arduino2 = arduino[1]
-            arduino3 = arduino[2]
-            arduino4 = arduino[3]
-
-            # Record the data every second into a csv file
-            writer.writerow({'Time': time.strftime("%Y-%B-%d %H:%M:%S"), 'MFC': MFC_flowrate, 'MFM': MFM_flowrate, 'Pressure': pressure, 'Temperature1': temperature[0], 'Temperature2': temperature[1], 'Temperature3': temperature[2], 'Temperature4': temperature[3], 'Temperature5': temperature[4], 'Temperature6': temperature[5], 'Arduino1': arduino[0], 'Arduino2': arduino[1], 'Arduino3': arduino[2], 'Arduino4': arduino[3]})
-            
-            # Print the data to the console
-            print(f"Time: {time.strftime('%Y-%B-%d %H:%M:%S')}, MFC: {MFC_flowrate}, MFM: {MFM_flowrate}, Pressure: {pressure}, Temperature1: {temperature1}, Temperature2: {temperature2}, Temperature3: {temperature3}, Temperature4: {temperature4}, Temperature5: {temperature5}, Temperature6: {temperature6}, Arduino1: {arduino1}, Arduino2: {arduino2}, Arduino3: {arduino3}, Arduino4: {arduino4}")
-
-            current_time = time.time()
-
-            # Append the data to a list
-            pollingData.append([time.strftime("%Y-%B-%d %H:%M:%S"), MFC_flowrate, MFM_flowrate, pressure, temperature1, temperature2, temperature3, temperature4, temperature5, temperature6, arduino1, arduino2, arduino3, arduino4])
-
-            # Sleep for X seconds
-            # Adjust as necessary
-            time.sleep((sampling_time)-2)
+        # Sleep for X seconds
+        # Adjust as necessary
+        time.sleep((sampling_time)-2)
 
     return pollingData
