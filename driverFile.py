@@ -44,7 +44,7 @@ import csv
 # The main folder is the folder where all the experimental results are stored
 # This folder is named "Experimental Results"
 # The program will create this main folder if it does not exist
-mainFolder = "Experimental Results"
+mainFolder = "ExperimentalResults"
 
 # The sub folder is the folder where the experimental results of a particular user are stored
 subFolder = input("Enter username: ")
