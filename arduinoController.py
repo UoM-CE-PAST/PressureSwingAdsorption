@@ -55,21 +55,21 @@ def arduinoController(serialArduino, **kwargs):
 
     # Read the data coming out from the Arduino
     if 'readData' in kwargs and readData == True:
-        with open('data5.csv', 'w', newline='') as csvfile:
+        # with open('data5.csv', 'w', newline='') as csvfile:
 
-            fieldnames = ['Time', 'Valve 1', 'Valve 2', 'Valve 3', 'Valve 4']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader() 
+        #     fieldnames = ['Time', 'Valve 1', 'Valve 2', 'Valve 3', 'Valve 4']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader() 
         
-            # Read the string coming out from the Arduino
-            while readData == True:              
-                msgfromArduino=serialArduino.readline()
-                msgfromArduino1=msgfromArduino.decode()
-                msgfromArduino2=msgfromArduino1.strip()
-                msgfromArduino3=msgfromArduino2.split(';')
-                msgfromArduino4=list(msgfromArduino3)
+        # Read the string coming out from the Arduino
+        while readData == True:              
+            msgfromArduino=serialArduino.readline()
+            msgfromArduino1=msgfromArduino.decode()
+            msgfromArduino2=msgfromArduino1.strip()
+            msgfromArduino3=msgfromArduino2.split(';')
+            msgfromArduino4=list(msgfromArduino3)
 
-                if len(msgfromArduino4) < 4:
-                    msgfromArduino4 = ["-", "-", "-", "-"]
+            if len(msgfromArduino4) < 4:
+                msgfromArduino4 = ["-", "-", "-", "-"]
 
-                return msgfromArduino4
+            return msgfromArduino4
